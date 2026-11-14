@@ -48,3 +48,14 @@ class ProjectOut(BaseModel):
     description: str | None
     created_at: datetime
     tasks: list[TaskOut] = []
+
+
+
+
+class StatsOut(BaseModel):
+    total_projects: int
+    total_tasks: int
+    pending: int
+    in_progress: int
+    completed: int
+    completion_rate: int

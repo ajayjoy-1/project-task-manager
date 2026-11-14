@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from . import models  # noqa: F401  (registers the tables)
 from .database import Base, engine
-from .routers import projects, tasks
+from .routers import projects, stats, tasks
 
 Base.metadata.create_all(bind=engine)
 
@@ -19,6 +19,7 @@ app.add_middleware(
 
 app.include_router(projects.router)
 app.include_router(tasks.router)
+app.include_router(stats.router)
 
 
 @app.get("/")
