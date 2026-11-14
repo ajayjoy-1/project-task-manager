@@ -1,7 +1,8 @@
 from datetime import datetime
 from enum import Enum
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
 
 class TaskStatus(str, Enum):
@@ -59,3 +60,47 @@ class StatsOut(BaseModel):
     in_progress: int
     completed: int
     completion_rate: int
+
+
+
+
+class RegisterRequest(BaseModel):
+    name: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)
+    ]
+    email: Annotated[
+        str,
+        StringConstraints(
+            strip_whitespace=True,
+            max_length=255,
+            pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+        ),
+    ]
+    password: str = Field(min_length=6, max_length=72)
+
+    @field_validator("password")
+    @classmethod
+    def password_not_too_long(cls, v: str) -> str:
+        if len(v.encode("utf-8")) > 72:
+            raise ValueError("Password is too long")
+        return v
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(max_length=255)
+    password: str = Field(max_length=128)
+
+
+class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    email: str
+    role: str
+
+
+class TokenOut(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserOut    

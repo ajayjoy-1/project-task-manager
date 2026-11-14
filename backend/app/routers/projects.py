@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from .. import models, schemas
 from ..database import get_db
+from ..security import require_admin
 
 router = APIRouter(tags=["Projects"])
 
@@ -28,7 +29,11 @@ def list_projects(db: Session = Depends(get_db)):
 
 
 @router.delete("/projects/{project_id}", status_code=204)
-def delete_project(project_id: int, db: Session = Depends(get_db)):
+def delete_project(
+    project_id: int,
+    db: Session = Depends(get_db),
+    _admin: models.User = Depends(require_admin),
+):
     project = db.get(models.Project, project_id)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")

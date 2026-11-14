@@ -2,7 +2,13 @@ import { api } from "../api";
 import TaskForm from "./TaskForm";
 import TaskItem from "./TaskItem";
 
-export default function ProjectCard({ project, tasks, onChanged, onError }) {
+export default function ProjectCard({
+  project,
+  tasks,
+  canDeleteProject,
+  onChanged,
+  onError,
+}) {
   async function handleDelete() {
     if (!window.confirm(`Delete project "${project.name}" and all its tasks?`))
       return;
@@ -23,9 +29,11 @@ export default function ProjectCard({ project, tasks, onChanged, onError }) {
           {project.description && <p className="muted">{project.description}</p>}
           <p className="muted">{tasks.length} task(s)</p>
         </div>
-        <button type="button" className="danger" onClick={handleDelete}>
-          Delete project
-        </button>
+        {canDeleteProject && (
+          <button type="button" className="danger" onClick={handleDelete}>
+            Delete project
+          </button>
+        )}
       </div>
 
       {tasks.length === 0 ? (
