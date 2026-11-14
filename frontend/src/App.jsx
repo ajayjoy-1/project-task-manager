@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
+import Dashboard from "./components/Dashboard";
 import FilterBar from "./components/FilterBar";
 import ProjectCard from "./components/ProjectCard";
 import ProjectForm from "./components/ProjectForm";
 
 function App() {
   const [projects, setProjects] = useState([]);
+  const [stats, setStats] = useState(null);
   const [matchIds, setMatchIds] = useState(null); // null means no filter active
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -27,7 +29,10 @@ function App() {
 
     async function load() {
       try {
-        const projectData = await api.getProjects();
+        const [projectData, statsData] = await Promise.all([
+          api.getProjects(),
+          api.getStats(),
+        ]);
         let ids = null;
         if (debouncedSearch.trim() || statusFilter) {
           const tasks = await api.getTasks({
@@ -38,6 +43,7 @@ function App() {
         }
         if (!cancelled) {
           setProjects(projectData);
+          setStats(statsData);
           setMatchIds(ids);
           setError("");
         }
@@ -74,6 +80,8 @@ function App() {
       <h1>Project & Task Manager</h1>
 
       {error && <div className="alert">{error}</div>}
+
+      <Dashboard stats={stats} />
 
       <section className="panel">
         <h2>New project</h2>
